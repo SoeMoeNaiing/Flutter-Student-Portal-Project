@@ -195,7 +195,7 @@ class _MysubjectState extends State<Mysubject> {
              ),
 
              onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context)=> SubjectDetailScreen(subject: subject)));
+              Navigator.push(context, MaterialPageRoute(builder: (context)=> Subjectdetailscreen(subject: subject)));
               // ScaffoldMessenger.of(context)
               //   .showSnackBar(
               //  SnackBar(

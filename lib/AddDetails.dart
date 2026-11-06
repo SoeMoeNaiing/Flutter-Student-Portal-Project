@@ -17,7 +17,7 @@ final TextEditingController codeController = TextEditingController();
 void saveSubject(){
   if(_formKey.currentState!.validate()){
 
-    Subject newsubject = Subject(name: nameController.text.trim(), code: codeController.text.trim());
+    Subject newsubject = Subject(name: nameController.text.trim(), code: codeController.text.trim() , image: mySubLists[0].image);
     mySubLists.add(newsubject);
     Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>Mysubject()));
      ScaffoldMessenger.of(context).showSnackBar(

@@ -1,6 +1,7 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:studentprj/MySubject.dart';
+import 'package:studentprj/subjectData.dart';
 import 'subject.dart';
 import 'MySubject.dart';
 
@@ -34,8 +35,10 @@ class SubjectDetailScreen extends StatelessWidget {
        margin: EdgeInsets.only(top:20),
        padding: EdgeInsets.all(25),
        decoration: BoxDecoration(
-        image: DecorationImage(image: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyJcZrUrKTk_mF3327iUIyf2wdIR_HfMgagV7y8dC2EKVEB3lb8PwwHHU&s=10'),opacity: 0.8),
+        image: DecorationImage(image: AssetImage(subject.image), fit: BoxFit.cover),
         borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
          bottomLeft: Radius.circular(30),
          bottomRight: Radius.circular(30),
         ),

@@ -53,40 +53,129 @@ class _TodoScreenState extends State<TodoScreen> {
 
   void _toggle(int i) => setState(() => _tasks[i].done = !_tasks[i].done);
 
-  void _delete(int i) => setState(() => _tasks.removeAt(i));
-
-  void _clearAll() {
-    if (_tasks.isEmpty) return;
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+  /* ────────────────────────────────────────────────────────
+   Shared confirmation dialog
+   Returns true if user taps the confirm button.
+   ──────────────────────────────────────────────────────── */
+Future<bool> _confirm({
+  required String title,
+  required String message,
+  required String confirmLabel,
+  Color confirmColor = Colors.red,
+}) async {
+  final result = await showDialog<bool>(
+    context: context,
+    barrierDismissible: true,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
         ),
-        title: const Text('Clear all tasks?'),
-        content: const Text('This will remove every task in your list.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              setState(() => _tasks.clear());
-            },
-            child: const Text(
-              'Clear',
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
+      ),
+      content: Text(
+        message,
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.grey.shade700,
+          height: 1.4,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text(
+            'Cancel',
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w600,
             ),
           ),
-        ],
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(
+            confirmLabel,
+            style: TextStyle(
+              color: confirmColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+  return result ?? false;   // dialog dismissed = treat as cancel
+}
+
+/* ────────────────────────────────────────────────────────
+   Delete ONE task — with confirmation
+   ──────────────────────────────────────────────────────── */
+Future<void> _delete(int i) async {
+  if (i < 0 || i >= _tasks.length) return;   // safety: stale index
+
+  final task = _tasks[i];
+  final ok = await _confirm(
+    title: 'Delete task?',
+    message: '"${task.text}" will be removed from your list.',
+    confirmLabel: 'Delete',
+  );
+  if (!ok || !mounted) return;
+
+  setState(() => _tasks.removeAt(i));
+
+  if (!mounted) return;
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: const Text('Task deleted'),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF323232),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        duration: const Duration(seconds: 2),
       ),
     );
-  }
+}
+
+/* ────────────────────────────────────────────────────────
+   Clear ALL tasks — with confirmation
+   ──────────────────────────────────────────────────────── */
+Future<void> _clearAll() async {
+  if (_tasks.isEmpty) return;
+
+  final ok = await _confirm(
+    title: 'Clear all tasks?',
+    message:
+        'This will remove all ${_tasks.length} task${_tasks.length == 1 ? '' : 's'}. '
+        'This action cannot be undone.',
+    confirmLabel: 'Clear All',
+  );
+  if (!ok || !mounted) return;
+
+  setState(() => _tasks.clear());
+
+  if (!mounted) return;
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: const Text('All tasks cleared'),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF323232),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+}
 
   @override
   Widget build(BuildContext context) {
